@@ -23,6 +23,6 @@ public record TrackPointsBySegments(List<List<TrackPoint>> segments, TrackPoints
 
     @NonNull
     private DoubleStream streamTrackPointsWithSpeed() {
-        return segments.stream().flatMap(List::stream).mapToDouble(TrackPoint::getSpeed).filter(speed -> speed > 0);
+        return segments.stream().flatMap(List::stream).mapToDouble(TrackPoint::getTrackpointspeed).filter(speed -> speed > 0);
     }
 }

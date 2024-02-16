@@ -192,12 +192,12 @@ public class MapUtils {
 
 
     public static int getTrackColorBySpeed(final double average, final double averageToMaxSpeed, final TrackPoint trackPoint) {
-        double speed = trackPoint.getSpeed();
+        double speed = trackPoint.getTrackpointspeed();
         int red = 255;
         int green = 255;
         if (speed == 0.0) {
             green = 0;
-        } else if (trackPoint.getSpeed() < average) {
+        } else if (trackPoint.getTrackpointspeed() < average) {
             green = (int) (255 * speed / average);
         } else {
             red = 255 - (int) (255 * (speed - average) / averageToMaxSpeed);

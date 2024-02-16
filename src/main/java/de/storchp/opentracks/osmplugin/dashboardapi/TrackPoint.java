@@ -48,7 +48,7 @@ public class TrackPoint {
     private final long trackRecordId; // Renamed to avoid confusion with TRACKID
     private final GeoPoint latLong;
     private final boolean pause;
-    private final double speed;
+    private final double trackPointSpeed;
 
     public TrackPoint(long trackRecordId, long trackPointId, double latitude, double longitude, Integer type, double speed) {
         this.trackRecordId = trackRecordId;
@@ -59,7 +59,7 @@ public class TrackPoint {
             latLong = null;
         }
         this.pause = type != null ? type == 3 : latitude == PAUSE_LATITUDE;
-        this.speed = speed;
+        this.trackPointSpeed = speed;
     }
 
     public boolean hasValidLocation() {
@@ -141,7 +141,7 @@ public class TrackPoint {
     }
 
     public double getSpeed() {
-        return speed;
+        return trackPointSpeed;
     }
     
 }
