@@ -33,8 +33,10 @@ public class DownloadActivity extends BaseActivity {
 
     private static final String OPENANDROMAPS_MAP_HOST = "ftp.gwdg.de";
     private static final String OPENANDROMAPS_THEME_HOST = "www.openandromaps.org";
-    private static final String OPENANDROMAPS_MAP_DOWNLOAD_URL = "https://" + OPENANDROMAPS_MAP_HOST + "/pub/misc/openstreetmap/openandromaps/mapsV4/";
-    private static final String OPENANDROMAPS_THEME_DOWNLOAD_URL = "https://" + OPENANDROMAPS_THEME_HOST + "/wp-content/users/tobias/";
+    private static final String OPENANDROMAPS_MAP_DOWNLOAD_URL = "https://" + OPENANDROMAPS_MAP_HOST
+            + "/pub/misc/openstreetmap/openandromaps/mapsV4/";
+    private static final String OPENANDROMAPS_THEME_DOWNLOAD_URL = "https://" + OPENANDROMAPS_THEME_HOST
+            + "/wp-content/users/tobias/";
     private static final String FREIZEITKARTE_HOST = "download.freizeitkarte-osm.de";
 
     private static final String MF_V4_MAP_SCHEME = "mf-v4-map";
@@ -61,12 +63,14 @@ public class DownloadActivity extends BaseActivity {
             var scheme = uri.getScheme();
             var host = uri.getHost();
             var path = uri.getPath();
-            Log.i(TAG, "scheme=" + scheme + ",host=" + host + ", path=" + path + ", lastPathSegment=" + uri.getLastPathSegment());
+            Log.i(TAG, "scheme=" + scheme + ",host=" + host + ", path=" + path + ", lastPathSegment="
+                    + uri.getLastPathSegment());
             downloadUri = uri;
 
             if (MF_V4_MAP_SCHEME.equals(scheme)) {
                 if (host.equals("download.openandromaps.org") && path.startsWith("/mapsV4/") && path.endsWith(".zip")) {
-                    // OpenAndroMaps URIs need to be remapped - mf-v4-map://download.openandromaps.org/mapsV4/Germany/bayern.zip
+                    // OpenAndroMaps URIs need to be remapped -
+                    // mf-v4-map://download.openandromaps.org/mapsV4/Germany/bayern.zip
                     downloadUri = Uri.parse(OPENANDROMAPS_MAP_DOWNLOAD_URL + path.substring(8));
                     downloadType = DownloadType.MAP_ZIP;
                 } else {
@@ -76,7 +80,8 @@ public class DownloadActivity extends BaseActivity {
                 }
             } else if (MF_THEME_SCHEME.equals(scheme)) {
                 if (host.equals("download.openandromaps.org") && path.startsWith("/themes/") && path.endsWith(".zip")) {
-                    // no remapping, as they have themes only on their homepage, not on their ftp site
+                    // no remapping, as they have themes only on their homepage, not on their ftp
+                    // site
                     downloadUri = Uri.parse(OPENANDROMAPS_THEME_DOWNLOAD_URL + path.substring(8));
                 } else {
                     // try to replace MF_THEME_SCHEME with https for unknown sources
@@ -100,7 +105,7 @@ public class DownloadActivity extends BaseActivity {
             Log.i(TAG, "downloadUri=" + downloadUri + ", downloadType=" + downloadType);
 
             binding.downloadInfo.setText(downloadUri.toString());
-            binding.startDownloadButton.setOnClickListener((view) -> startDownload());
+            binding.startDownloadButton.setOnClickListener(view -> startDownload());
         } else {
             binding.downloadInfo.setText(R.string.no_download_uri_found);
             binding.startDownloadButton.setEnabled(false);
@@ -117,7 +122,8 @@ public class DownloadActivity extends BaseActivity {
         return downloadTask != null;
     }
 
-    protected final ActivityResultLauncher<Intent> directoryIntentLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+    protected final ActivityResultLauncher<Intent> directoryIntentLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     startDownload();
@@ -141,15 +147,15 @@ public class DownloadActivity extends BaseActivity {
         var file = directoryFile.findFile(fileName);
         if (file != null) {
             new AlertDialog.Builder(DownloadActivity.this)
-                .setIcon(R.drawable.ic_logo_color_24dp)
-                .setTitle(R.string.app_name)
-                .setMessage(getString(downloadType.getOverwriteMessageId(), fileName))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    file.delete();
-                    startDownload();
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .create().show();
+                    .setIcon(R.drawable.ic_logo_color_24dp)
+                    .setTitle(R.string.app_name)
+                    .setMessage(getString(downloadType.getOverwriteMessageId(), fileName))
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        file.delete();
+                        startDownload();
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .create().show();
             return;
         }
 
@@ -196,7 +202,8 @@ public class DownloadActivity extends BaseActivity {
         private boolean success = false;
         private boolean canceled = false;
 
-        public DownloadTask(DownloadActivity activity, Uri downloadUri, DocumentFile directoryFile, String filename, DownloadType downloadType) {
+        public DownloadTask(DownloadActivity activity, Uri downloadUri, DocumentFile directoryFile, String filename,
+                DownloadType downloadType) {
             ref = new WeakReference<>(activity);
             this.downloadUri = downloadUri;
             this.directoryFile = directoryFile;
@@ -312,12 +319,12 @@ public class DownloadActivity extends BaseActivity {
     public void navigateUp() {
         if (isDownloadInProgress()) {
             new AlertDialog.Builder(DownloadActivity.this)
-                .setIcon(R.drawable.ic_logo_color_24dp)
-                .setTitle(R.string.app_name)
-                .setMessage(getString(R.string.cancel_download_question))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> downloadTask.cancelDownload())
-                .setNegativeButton(android.R.string.cancel, null)
-                .create().show();
+                    .setIcon(R.drawable.ic_logo_color_24dp)
+                    .setTitle(R.string.app_name)
+                    .setMessage(getString(R.string.cancel_download_question))
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> downloadTask.cancelDownload())
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .create().show();
         } else {
             finish();
         }
@@ -328,7 +335,7 @@ public class DownloadActivity extends BaseActivity {
         MAP(R.string.overwrite_map_question, R.string.download_success, R.string.download_failed, false) {
             @Override
             public Uri getDirectoryUri() {
-                return  PreferencesUtils.getMapDirectoryUri();
+                return PreferencesUtils.getMapDirectoryUri();
             }
 
             @Override
@@ -339,18 +346,21 @@ public class DownloadActivity extends BaseActivity {
         MAP_ZIP(R.string.overwrite_map_question, R.string.download_success, R.string.download_failed, true) {
             @Override
             public Uri getDirectoryUri() {
-                return  PreferencesUtils.getMapDirectoryUri();
+                return PreferencesUtils.getMapDirectoryUri();
             }
+
             @Override
             public Class<? extends DirectoryChooserActivity> getDirectoryChooser() {
                 return DirectoryChooserActivity.MapDirectoryChooserActivity.class;
             }
         },
-        THEME(R.string.overwrite_theme_question, R.string.download_theme_success, R.string.download_theme_failed, false) {
+        THEME(R.string.overwrite_theme_question, R.string.download_theme_success, R.string.download_theme_failed,
+                false) {
             @Override
             public Uri getDirectoryUri() {
-                return  PreferencesUtils.getMapThemeDirectoryUri();
+                return PreferencesUtils.getMapThemeDirectoryUri();
             }
+
             @Override
             public Class<? extends DirectoryChooserActivity> getDirectoryChooser() {
                 return DirectoryChooserActivity.ThemeDirectoryChooserActivity.class;
