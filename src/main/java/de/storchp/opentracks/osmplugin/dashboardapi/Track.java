@@ -18,7 +18,7 @@ public record Track(long id, String trackname, String description, String catego
 
     public static final String _ID = "_id";
     public static final String NAME = "name"; // track name
-    public static final String DESCRIPTION = "description"; // track description
+    public static final String TRACKDESCIPTION = "description"; // track description
     public static final String CATEGORY = "category"; // track activity type
     public static final String STARTTIME = "starttime"; // track start time
     public static final String STOPTIME = "stoptime"; // track stop time
@@ -35,7 +35,7 @@ public record Track(long id, String trackname, String description, String catego
     public static final String[] PROJECTION = {
             _ID,
             NAME,
-            DESCRIPTION,
+            TRACKDESCIPTION,
             CATEGORY,
             STARTTIME,
             STOPTIME,
@@ -61,7 +61,7 @@ public record Track(long id, String trackname, String description, String catego
             while (cursor.moveToNext()) {
                 var id = cursor.getLong(cursor.getColumnIndexOrThrow(Track._ID));
                 var trackname = cursor.getString(cursor.getColumnIndexOrThrow(Track.NAME));
-                var description = cursor.getString(cursor.getColumnIndexOrThrow(Track.DESCRIPTION));
+                var description = cursor.getString(cursor.getColumnIndexOrThrow(Track.TRACKDESCIPTION));
                 var category = cursor.getString(cursor.getColumnIndexOrThrow(Track.CATEGORY));
                 var startTimeEpochMillis = cursor.getInt(cursor.getColumnIndexOrThrow(Track.STARTTIME));
                 var stopTimeEpochMillis = cursor.getInt(cursor.getColumnIndexOrThrow(Track.STOPTIME));

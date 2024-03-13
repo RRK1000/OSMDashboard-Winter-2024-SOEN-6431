@@ -18,7 +18,7 @@ import de.storchp.opentracks.osmplugin.utils.MapUtils;
 
 public class Waypoint {
 
-    public static final String _ID = "_id";
+    public static final String ID = "_id";
     public static final String NAME = "name"; // waypoint name
     public static final String DESCRIPTION = "description"; // waypoint description
     public static final String CATEGORY = "category"; // waypoint category
@@ -117,7 +117,7 @@ public class Waypoint {
         var waypoints = new ArrayList<Waypoint>();
         try (Cursor cursor = resolver.query(data, Waypoint.PROJECTION, null, null, null)) {
             while (cursor.moveToNext()) {
-                var waypointId = cursor.getLong(cursor.getColumnIndexOrThrow(Waypoint._ID));
+                var waypointId = cursor.getLong(cursor.getColumnIndexOrThrow(Waypoint.ID));
                 if (lastWaypointId > 0 && lastWaypointId >= waypointId) { // skip waypoints we already have
                     continue;
                 }

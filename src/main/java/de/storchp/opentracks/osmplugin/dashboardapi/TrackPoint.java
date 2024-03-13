@@ -45,13 +45,13 @@ public class TrackPoint {
     };
 
     private final long trackPointId;
-    private final long trackId;
+    private final long trackRecordId; // Renamed to avoid confusion with TRACKID
     private final GeoPoint latLong;
     private final boolean pause;
     private final double speed;
 
-    public TrackPoint(long trackId, long trackPointId, double latitude, double longitude, Integer type, double speed) {
-        this.trackId = trackId;
+    public TrackPoint(long trackRecordId, long trackPointId, double latitude, double longitude, Integer type, double speed) {
+        this.trackRecordId = trackRecordId;
         this.trackPointId = trackPointId;
         if (MapUtils.isValid(latitude, longitude)) {
             this.latLong = new GeoPoint(latitude, longitude);
@@ -89,7 +89,7 @@ public class TrackPoint {
             while (cursor.moveToNext()) {
                 debug.setTrackpointsReceived(debug.getTrackpointsReceived() + 1);
                 var trackPointId = cursor.getLong(cursor.getColumnIndexOrThrow(TrackPoint._ID));
-                var trackId = cursor.getLong(cursor.getColumnIndexOrThrow(TrackPoint.TRACKID));
+                var trackRecordId = cursor.getLong(cursor.getColumnIndexOrThrow(TrackPoint.TRACKID));
                 var latitude = cursor.getInt(cursor.getColumnIndexOrThrow(TrackPoint.LATITUDE)) / LAT_LON_FACTOR;
                 var longitude = cursor.getInt(cursor.getColumnIndexOrThrow(TrackPoint.LONGITUDE)) / LAT_LON_FACTOR;
                 var typeIndex = cursor.getColumnIndex(TrackPoint.TYPE);
@@ -100,24 +100,23 @@ public class TrackPoint {
                     type = cursor.getInt(typeIndex);
                 }
 
-                if (lastTrackPoint == null || lastTrackPoint.trackId != trackId) {
+                if (lastTrackPoint == null || lastTrackPoint.trackRecordId != trackRecordId) {
                     segment = new ArrayList<>();
                     segments.add(segment);
                 }
 
-                lastTrackPoint = new TrackPoint(trackId, trackPointId, latitude, longitude, type, speed);
+                lastTrackPoint = new TrackPoint(trackRecordId, trackPointId, latitude, longitude, type, speed);
                 if (lastTrackPoint.hasValidLocation()) {
                     segment.add(lastTrackPoint);
                 } else if (!lastTrackPoint.isPause()) {
                     debug.setTrackpointsInvalid(debug.getTrackpointsInvalid() + 1);
                 }
                 if (lastTrackPoint.isPause()) {
-                    debug.setTrackpointsPause(debug.getTrackpointsPause() + 1);
-                    if (!lastTrackPoint.hasValidLocation()) {
-                       if (segment.size() > 0) {
+                    debug.trackpointsPause++;
+                    if (!lastTrackPoint.hasValidLocation() && (!segment.isEmpty())) {
                            var previousTrackpoint = segment.get(segment.size() - 1);
                            if (previousTrackpoint.hasValidLocation()) {
-                               segment.add(new TrackPoint(trackId, trackPointId, previousTrackpoint.getLatLong().getLatitude(), previousTrackpoint.getLatLong().getLongitude(), type, speed));
+                               segment.add(new TrackPoint(trackRecordId, trackPointId, previousTrackpoint.getLatLong().getLatitude(), previousTrackpoint.getLatLong().getLongitude(), type, speed));
                            }
                     }
                     lastTrackPoint = null;
@@ -134,7 +133,7 @@ public class TrackPoint {
     }
 
     public long getTrackId() {
-        return trackId;
+        return trackRecordId;
     }
 
     public GeoPoint getLatLong() {
