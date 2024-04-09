@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Represents geographical bounds with minimum and maximum latitude and longitude.
+ */
 class Bounds {
     public double minlat;
     public double minlon;
@@ -23,6 +26,10 @@ class Bounds {
     }
 }
 
+
+/**
+ * Represents a trail containing a list of SkiElements.
+ */
 public class Trail {
 
     private List<SkiElements> trails = new ArrayList<>();
@@ -32,6 +39,34 @@ public class Trail {
     private Trail() {
     }
 
+
+    /**
+     * Returns a list of trail names extracted from SkiElements.
+     * @return A list of trail names.
+     */
+    public List<String> exposeTrailNames() {
+        List<String> trailNames = new ArrayList<>();
+        for (SkiElements element : trails) {
+            trailNames.add(element.tags.name);
+        }
+        return trailNames;
+    }
+
+    public void setTrails(List<SkiElements> trails) {
+        this.trails = trails;
+    }
+
+    public static void setInstance(Trail instance) {
+        Trail.instance = instance;
+    }
+
+    @Override
+    public String toString() {
+        return "Trail{" +
+                "trails=" + trails +
+                '}';
+    }
+
     // Static method to create instance of Singleton class
     public static synchronized Trail getInstance() {
         if (instance == null)
@@ -39,6 +74,8 @@ public class Trail {
 
         return instance;
     }
+
+
 
 
     public List<SkiElements> getTrails() {
@@ -95,6 +132,7 @@ class Tags {
         this.route = route;
         this.gladed = gladed;
     }
+
 
     public Tags(){
 
