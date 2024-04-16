@@ -1040,96 +1040,93 @@ public class MapsActivity extends BaseActivity implements ItemizedLayer.OnItemGe
         }
 
         ExecutorService myExecutor = Executors.newCachedThreadPool();
-        myExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                // get ski features
-                OkHttpClient client = new OkHttpClient().newBuilder()
-                        .build();
-                MediaType mediaType = MediaType.parse("text/plain");
-                String bbox = boundingBox.minLatitudeE6 / 1000000.0 + ","
-                        + boundingBox.minLongitudeE6 / 1000000.0 + ","
-                        + boundingBox.maxLatitudeE6 / 1000000.0 + ","
-                        + boundingBox.maxLongitudeE6 / 1000000.0;
+        myExecutor.execute(() -> {
+            // get ski features
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            MediaType mediaType = MediaType.parse("text/plain");
+            String bbox = boundingBox.minLatitudeE6 / 1000000.0 + ","
+                    + boundingBox.minLongitudeE6 / 1000000.0 + ","
+                    + boundingBox.maxLatitudeE6 / 1000000.0 + ","
+                    + boundingBox.maxLongitudeE6 / 1000000.0;
 
-                String skiRouteRequestBodyData = "data=[out:json][timeout:90];" + "(way[\"piste:type\"](" +
-                        bbox + ");relation[\"piste:type\"](" + bbox + ");" + ");" + "out geom;";
+            String skiRouteRequestBodyData = "data=[out:json][timeout:90];" + "(way[\"piste:type\"](" +
+                    bbox + ");relation[\"piste:type\"](" + bbox + ");" + ");" + "out geom;";
 
-                // making API request for ski route data
-                RequestBody body = RequestBody.create(mediaType, skiRouteRequestBodyData);
-                Request request = new Request.Builder()
-                        .url("https://overpass-api.de/api/interpreter")
-                        .method("POST", body)
-                        .addHeader("Content-Type", "text/plain")
-                        .build();
-                Response response = null;
-                try {
-                    response = client.newCall(request).execute();
-                    JSONObject jsonResponse = new JSONObject(response.body().string());
-                    Log.println(Log.DEBUG, TAG, String.valueOf(jsonResponse));
+            // making API request for ski route data
+            RequestBody body = RequestBody.create(mediaType, skiRouteRequestBodyData);
+            Request request = new Request.Builder()
+                    .url("https://overpass-api.de/api/interpreter")
+                    .method("POST", body)
+                    .addHeader("Content-Type", "text/plain")
+                    .build();
+            Response response = null;
+            try {
+                response = client.newCall(request).execute();
+                JSONObject jsonResponse = new JSONObject(response.body().string());
+                Log.println(Log.DEBUG, TAG, String.valueOf(jsonResponse));
 
-                    // reading elements array from JSON response
-                    JSONArray elements = jsonResponse.getJSONArray("elements");
-                    for (int i = 0; i < elements.length(); i++) {
-                        JSONObject element = elements.getJSONObject(i);
-                        String type = element.getString("type");
-                        long id = element.getLong("id");
-                        JSONObject tags = element.getJSONObject("tags");
-                        JSONArray nodes = element.getJSONArray("nodes"); // Getting the nodes array
-                        JSONArray geometry = element.getJSONArray("geometry"); // coordinates
-                        String name = tags.optString("name", "Unnamed");
-                        Trail trail = Trail.getInstance(); // singleton class
-                        SkiElements skiElements = SkiElements.parseJsonElement(element); // has ski-elements in the form of list
-                        trail.addTrailData(skiElements); // adds ski-element list in the trails
-                        // Now you can use these variables as needed
-                        Log.i(TAG, "Type: " + type + ", ID: " + id + ", Name: " + name);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                // reading elements array from JSON response
+                JSONArray elements = jsonResponse.getJSONArray("elements");
+                for (int i = 0; i < elements.length(); i++) {
+                    JSONObject element = elements.getJSONObject(i);
+                    String type = element.getString("type");
+                    long id = element.getLong("id");
+                    JSONObject tags = element.getJSONObject("tags");
+                    JSONArray nodes = element.getJSONArray("nodes"); // Getting the nodes array
+                    JSONArray geometry = element.getJSONArray("geometry"); // coordinates
+                    String name = tags.optString("name", "Unnamed");
+                    Trail trail = Trail.getInstance(); // singleton class
+                    SkiElements skiElements = SkiElements.parseJsonElement(element); // has ski-elements in the form of list
+                    trail.addTrailData(skiElements); // adds ski-element list in the trails
+                    // Now you can use these variables as needed
+                    Log.i(TAG, "Type: " + type + ", ID: " + id + ", Name: " + name);
                 }
 
-                // making API request for chair lift data
-                String chairLiftRequestBodyData = "data=[out:json][timeout:90];" +
-                        "(node[\"aerialway\"=\"chair_lift\"](" + bbox + ");" +
-                        "way[\"aerialway\"=\"chair_lift\"](" + bbox + ");" +
-                        "way[\"aerialway\"=\"chair_lift\"](" + bbox + ");" +
-                        ");out geom;";
-                body = RequestBody.create(mediaType, chairLiftRequestBodyData);
-                request = new Request.Builder()
-                        .url("https://overpass-api.de/api/interpreter")
-                        .method("POST", body)
-                        .addHeader("Content-Type", "text/plain")
-                        .build();
-                try {
-                    response = client.newCall(request).execute();
-                    JSONObject jsonResponse = new JSONObject(response.body().string());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-                    // extracting data
-                    JSONArray elements = jsonResponse.getJSONArray("elements");
+            // making API request for chair lift data
+            String chairLiftRequestBodyData = "data=[out:json][timeout:90];" +
+                    "(node[\"aerialway\"=\"chair_lift\"](" + bbox + ");" +
+                    "way[\"aerialway\"=\"chair_lift\"](" + bbox + ");" +
+                    "way[\"aerialway\"=\"chair_lift\"](" + bbox + ");" +
+                    ");out geom;";
+            body = RequestBody.create(mediaType, chairLiftRequestBodyData);
+            request = new Request.Builder()
+                    .url("https://overpass-api.de/api/interpreter")
+                    .method("POST", body)
+                    .addHeader("Content-Type", "text/plain")
+                    .build();
+            try {
+                response = client.newCall(request).execute();
+                JSONObject jsonResponse = new JSONObject(response.body().string());
 
-                    // integrate chair_lift tags into tracks
-                    ChairLift chairLift = ChairLift.getInstance(); // singleton class
-                    chairLift.clearData();
-                    for (int i = 0; i < elements.length(); i++) {
-                        JSONObject element = elements.getJSONObject(i);
-                        String type = element.getString("type");
-                        long id = element.getLong("id");
-                        JSONObject tags = element.getJSONObject("tags");
-                        JSONArray nodes = element.getJSONArray("nodes"); // Getting the nodes array
-                        JSONArray geometry = element.getJSONArray("geometry"); // coordinates
-                        String name = tags.optString("name", "Unnamed");
+                // extracting data
+                JSONArray elements = jsonResponse.getJSONArray("elements");
 
-                        ChairLiftElements chairLiftElements = ChairLiftElements.parseJsonElement(element);
-                        chairLift.addChairLiftData(chairLiftElements); // adds chairLift element list in the chairLifts
+                // integrate chair_lift tags into tracks
+                ChairLift chairLift = ChairLift.getInstance(); // singleton class
+                chairLift.clearData();
+                for (int i = 0; i < elements.length(); i++) {
+                    JSONObject element = elements.getJSONObject(i);
+                    String type = element.getString("type");
+                    long id = element.getLong("id");
+                    JSONObject tags = element.getJSONObject("tags");
+                    JSONArray nodes = element.getJSONArray("nodes"); // Getting the nodes array
+                    JSONArray geometry = element.getJSONArray("geometry"); // coordinates
+                    String name = tags.optString("name", "Unnamed");
 
-                        // Now you can use these variables as needed
-                        Log.i(TAG, "Type: " + type + ", ID: " + id + ", Name: " + name);
-                    }
+                    ChairLiftElements chairLiftElements = ChairLiftElements.parseJsonElement(element);
+                    chairLift.addChairLiftData(chairLiftElements); // adds chairLift element list in the chairLifts
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    // Now you can use these variables as needed
+                    Log.i(TAG, "Type: " + type + ", ID: " + id + ", Name: " + name);
                 }
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
